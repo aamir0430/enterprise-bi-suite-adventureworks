@@ -423,6 +423,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+*.bak
+*.mdf
+*.ldf
+.env
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
