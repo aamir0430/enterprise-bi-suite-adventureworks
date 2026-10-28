@@ -22,9 +22,14 @@ The star schema is designed from the **AdventureWorksDW2025** data warehouse, wh
 
 See `docs/decisions.md` for the reasons behind each choice.
 
+## Data cleaning and validation
+- **Power Query:** explicit data types, unused columns removed, column quality checked, and no rows deleted without evidence.
+- **SQL checks** (`tests/data_quality/`): nulls in key fields, duplicate order lines, suspicious numeric values, and unmatched dimension keys.
+- **Baseline totals** from the source are recorded in `tests/data_quality/09_fis_baseline_totals.sql` and will be reconciled against Power BI in the testing phase.
+
 ## Status
 | Phase | State |
 |---|---|
 | 0. Setup and repo | Complete |
-| 1. Requirements and design | In progress: tables selected and product hierarchy merged; data cleaning and shaping in Power Query still to finish |
-| 2 onward | Not started |
+| 1. Requirements and design | Nearly complete: data cleaned and validated; star schema diagram and DW data dictionary still to finish |
+| 2 onward | Not started. Planned: Build the data warehouse in Azure Data Factory|
