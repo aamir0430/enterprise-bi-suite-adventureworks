@@ -39,3 +39,37 @@
 - In the source, the product hierarchy is split across three linked tables (a snowflake). Merging them gives a true star schema, with every dimension linked directly to the fact table.
 - A single product dimension means fewer relationships in the model, simpler DAX and a cleaner field list for report users.
 - Product, subcategory and category can be used together in one slicer or drill-down hierarchy.
+
+## 28 Oct 2026: Investigate before deleting rows
+
+**Decision:** In Power Query, no rows are deleted from FactInternetSales without evidence that they are invalid. Suspicious values (negative amounts, unmatched keys, nulls) are investigated against the source first.
+
+**Reasons:**
+- Each row is a sales order line, so removing rows changes revenue totals and the business meaning of the data.
+- Some unusual values can be valid adjustments, and some unmatched keys can be valid "unknown" members.
+- The cleaned table can then be reconciled exactly against the source totals recorded in tests/data_quality/.
+
+
+## 28 Oct 2026: Columns kept in FactInternetSales
+
+**Decision:** FactInternetSales keeps these columns:
+- Keys: ProductKey, OrderDateKey, DueDateKey, ShipDateKey, CustomerKey, PromotionKey, SalesTerritoryKey
+- Order identification: SalesOrderNumber, SalesOrderLineNumber
+- Measures: OrderQuantity, UnitPrice, ExtendedAmount, UnitPriceDiscountPct, DiscountAmount, TotalProductCost, SalesAmount, TaxAmt, Freight, RevisionNumber
+- Dates: OrderDate, DueDate and ShipDate columns
+
+Removed: CarrierTrackingNumber, CustomerPONumber, CurrencyKey.
+
+**Reasons:**
+- Kept columns support the KPIs: revenue, units, discounts, margin (from TotalProductCost), and analysis by date, product, customer, promotion and territory.
+- CarrierTrackingNumber, CustomerPONumber are operational references that no business question uses.
+- CurrencyKey is removed because reporting uses the amounts as stored, with no currency conversion in scope.
+
+
+## 29 Oct 2026: Explicit data types in Power Query
+
+**Decision:** Data types are set explicitly: keys, line numbers and quantities as Whole Number; money columns (prices, amounts, costs, tax, freight) as Fixed Decimal Number/Currency; discount percentage as Decimal Number; identifiers as Text.
+
+**Reasons:**
+- Automatic type detection can guess wrong when the data changes.
+- Fixed Decimal Number avoids the floating-point rounding errors that can affect financial totals.
