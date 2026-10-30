@@ -1,0 +1,2 @@
+CREATE DATABASE EnterpriseBI_DW;
+GO
