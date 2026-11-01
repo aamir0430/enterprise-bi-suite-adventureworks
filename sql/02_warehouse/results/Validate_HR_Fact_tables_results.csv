@@ -1,7 +1,0 @@
-﻿DimEmployee,290
-DimDepartment,16
-DimShift,3
-DimPayFrequency,2
-FactEmployeeSnapshot,290
-FactEmployeeDepartmentHistory,0
-FactEmployeePayHistory,0

@@ -1,29 +1,41 @@
 USE EnterpriseBI_DW;
 GO
 
-IF OBJECT_ID('Fact.FactEmployeeDepartmentHistory', 'U') IS NULL
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+IF OBJECT_ID(
+    'Fact.FactEmployeeDepartmentHistory', 'U'
+) IS NULL
 BEGIN
 
     CREATE TABLE Fact.FactEmployeeDepartmentHistory
     (
         DepartmentHistoryFactKey BIGINT IDENTITY(1,1) NOT NULL,
+
         EmployeeKey INT NOT NULL,
         DepartmentKey INT NOT NULL,
         ShiftKey INT NOT NULL,
+
         StartDateKey INT NOT NULL,
         EndDateKey INT NULL,
+
         IsCurrentAssignment BIT,
         AssignmentDurationDays INT,
 
-        -- Primary Key: uniquely identifies each assignment record
         CONSTRAINT PK_FactEmployeeDepartmentHistory
             PRIMARY KEY (DepartmentHistoryFactKey),
 
-        -- Unique Constraint: prevents duplicate assignment records
         CONSTRAINT UQ_EmployeeDepartmentHistory
-            UNIQUE (EmployeeKey, DepartmentKey, ShiftKey, StartDateKey),
+            UNIQUE
+            (
+                EmployeeKey,
+                DepartmentKey,
+                ShiftKey,
+                StartDateKey
+            ),
 
-        -- Foreign Keys: connect employee, department and shift dimensions
         CONSTRAINT FK_DeptHistory_Employee
             FOREIGN KEY (EmployeeKey)
             REFERENCES Dim.DimEmployee(EmployeeKey),
@@ -36,7 +48,6 @@ BEGIN
             FOREIGN KEY (ShiftKey)
             REFERENCES Dim.DimShift(ShiftKey),
 
-        -- Foreign Keys: connect assignment dates to DimDate
         CONSTRAINT FK_DeptHistory_StartDate
             FOREIGN KEY (StartDateKey)
             REFERENCES Dim.DimDate(DateKey),
@@ -46,26 +57,95 @@ BEGIN
             REFERENCES Dim.DimDate(DateKey)
     );
 
-    -- Insert department assignment history
+    PRINT 'FactEmployeeDepartmentHistory table created.';
+
+END
+ELSE
+BEGIN
+
+    PRINT 'FactEmployeeDepartmentHistory table already exists.';
+
+END;
+GO
+
+
+IF EXISTS
+(
+    SELECT 1
+    FROM AdventureWorks2025.HumanResources.EmployeeDepartmentHistory H
+
+    LEFT JOIN Dim.DimEmployee E
+        ON H.BusinessEntityID = E.EmployeeID
+
+    LEFT JOIN Dim.DimDepartment D
+        ON H.DepartmentID = D.DepartmentID
+
+    LEFT JOIN Dim.DimShift S
+        ON H.ShiftID = S.ShiftID
+
+    LEFT JOIN Dim.DimDate SD
+        ON CONVERT(INT, CONVERT(CHAR(8), H.StartDate, 112))
+           = SD.DateKey
+
+    LEFT JOIN Dim.DimDate ED
+        ON CONVERT(INT, CONVERT(CHAR(8), H.EndDate, 112))
+           = ED.DateKey
+
+    WHERE E.EmployeeKey IS NULL
+       OR D.DepartmentKey IS NULL
+       OR S.ShiftKey IS NULL
+       OR SD.DateKey IS NULL
+       OR (H.EndDate IS NOT NULL AND ED.DateKey IS NULL)
+)
+BEGIN
+
+    THROW 50001,
+    'ETL stopped: One or more source records have missing dimension or date matches. Check DimDate and the dimension mappings.',
+    1;
+
+END;
+
+PRINT 'All source records successfully match the required dimensions.';
+GO
+
+BEGIN TRY
+
+    BEGIN TRANSACTION;
+
     INSERT INTO Fact.FactEmployeeDepartmentHistory
     (
-        EmployeeKey, DepartmentKey, ShiftKey,
-        StartDateKey, EndDateKey,
-        IsCurrentAssignment, AssignmentDurationDays
+        EmployeeKey,
+        DepartmentKey,
+        ShiftKey,
+        StartDateKey,
+        EndDateKey,
+        IsCurrentAssignment,
+        AssignmentDurationDays
     )
+
     SELECT
-        DE.EmployeeKey,
-        DD.DepartmentKey,
-        DS.ShiftKey,
-        CONVERT(INT, CONVERT(CHAR(8), H.StartDate, 112)),
+        E.EmployeeKey,
+        D.DepartmentKey,
+        S.ShiftKey,
+
+        CONVERT(
+            INT,
+            CONVERT(CHAR(8), H.StartDate, 112)
+        ),
 
         CASE
             WHEN H.EndDate IS NOT NULL
-            THEN CONVERT(INT, CONVERT(CHAR(8), H.EndDate, 112))
+            THEN CONVERT(
+                INT,
+                CONVERT(CHAR(8), H.EndDate, 112)
+            )
             ELSE NULL
         END,
 
-        CASE WHEN H.EndDate IS NULL THEN 1 ELSE 0 END,
+        CASE
+            WHEN H.EndDate IS NULL THEN 1
+            ELSE 0
+        END,
 
         DATEDIFF
         (
@@ -76,14 +156,77 @@ BEGIN
 
     FROM AdventureWorks2025.HumanResources.EmployeeDepartmentHistory H
 
-    INNER JOIN Dim.DimEmployee DE
-        ON H.BusinessEntityID = DE.EmployeeID
+    INNER JOIN Dim.DimEmployee E
+        ON H.BusinessEntityID = E.EmployeeID
 
-    INNER JOIN Dim.DimDepartment DD
-        ON H.DepartmentID = DD.DepartmentID
+    INNER JOIN Dim.DimDepartment D
+        ON H.DepartmentID = D.DepartmentID
 
-    INNER JOIN Dim.DimShift DS
-        ON H.ShiftID = DS.ShiftID;
+    INNER JOIN Dim.DimShift S
+        ON H.ShiftID = S.ShiftID
 
-END;
+    INNER JOIN Dim.DimDate SD
+        ON CONVERT(INT, CONVERT(CHAR(8), H.StartDate, 112))
+           = SD.DateKey
+
+    LEFT JOIN Dim.DimDate ED
+        ON CONVERT(INT, CONVERT(CHAR(8), H.EndDate, 112))
+           = ED.DateKey
+
+    WHERE NOT EXISTS
+    (
+        SELECT 1
+        FROM Fact.FactEmployeeDepartmentHistory F
+        WHERE F.EmployeeKey = E.EmployeeKey
+          AND F.DepartmentKey = D.DepartmentKey
+          AND F.ShiftKey = S.ShiftKey
+          AND F.StartDateKey =
+              CONVERT(INT, CONVERT(CHAR(8), H.StartDate, 112))
+    );
+
+    DECLARE @InsertedRows INT = @@ROWCOUNT;
+
+    COMMIT TRANSACTION;
+
+    PRINT 'Employee department history loading completed successfully.';
+
+    SELECT
+        @InsertedRows AS NewlyInsertedRows;
+
+END TRY
+
+BEGIN CATCH
+
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+
+END CATCH;
+GO
+
+SELECT
+    COUNT(*) AS TotalWarehouseRows,
+
+    COUNT(DISTINCT DepartmentHistoryFactKey)
+        AS DistinctFactKeys,
+
+    COUNT(DISTINCT EmployeeKey)
+        AS DistinctEmployees,
+
+    SUM(
+        CASE
+            WHEN IsCurrentAssignment = 1 THEN 1
+            ELSE 0
+        END
+    ) AS CurrentAssignments,
+
+    SUM(
+        CASE
+            WHEN EndDateKey IS NULL THEN 1
+            ELSE 0
+        END
+    ) AS OngoingAssignments
+
+FROM Fact.FactEmployeeDepartmentHistory;
 GO
