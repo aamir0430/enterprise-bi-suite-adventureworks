@@ -1,0 +1,8 @@
+﻿Starting Finance ETL...
+Finance dimensions loaded/updated successfully.
+FactPurchaseOrderHeader loaded/updated successfully.
+FactPurchaseOrders loaded/updated successfully.
+FactCurrencyRate loaded/updated successfully.
+Finance ETL completed successfully.
+
+Completion time: 2026-11-08T19:01:34.8882858+05:30

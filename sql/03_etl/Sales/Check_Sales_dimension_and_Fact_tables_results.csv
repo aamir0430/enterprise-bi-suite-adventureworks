@@ -1,0 +1,11 @@
+﻿DimCustomer,19820
+DimProduct,504
+DimSalesTerritory,10
+DimSalesPerson,17
+DimPromotion,16
+DimCurrency,105
+DimShipMethod,5
+DimAddress,19614
+DimDate,10777
+FactSales,121317
+FactSalesOrderHeader,31465

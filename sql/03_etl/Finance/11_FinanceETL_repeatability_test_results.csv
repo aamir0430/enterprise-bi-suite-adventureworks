@@ -1,0 +1,8 @@
+﻿DimVendor,104
+DimEmployee,290
+DimProduct,504
+DimShipMethod,5
+DimCurrency,105
+FactPurchaseOrderHeader,4012
+FactPurchaseOrders,8845
+FactCurrencyRate,13532

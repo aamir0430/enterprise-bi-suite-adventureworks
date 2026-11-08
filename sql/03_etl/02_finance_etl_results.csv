@@ -1,0 +1,5 @@
+﻿etl,usp_LoadFactCurrencyRate,2026-11-08 16:28:37.217,2026-11-08 16:37:41.370
+etl,usp_LoadFactPurchaseOrderHeader,2026-11-08 16:37:41.333,2026-11-08 16:37:41.333
+etl,usp_LoadFactPurchaseOrders,2026-11-08 16:28:37.210,2026-11-08 16:37:41.357
+etl,usp_LoadFinanceDimensions,2026-11-08 16:28:37.150,2026-11-08 16:37:41.313
+etl,usp_RunFinanceETL,2026-11-08 16:28:37.230,2026-11-08 16:37:41.370

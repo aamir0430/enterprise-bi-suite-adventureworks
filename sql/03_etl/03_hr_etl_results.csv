@@ -1,0 +1,5 @@
+﻿etl,usp_LoadFactEmployeeDepartmentHistory
+etl,usp_LoadFactEmployeePayHistory
+etl,usp_LoadFactEmployeeSnapshot
+etl,usp_LoadHRDimensions
+etl,usp_RunHRETL

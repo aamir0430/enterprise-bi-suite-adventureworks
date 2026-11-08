@@ -1,0 +1,8 @@
+﻿DimEmployee,290
+DimDepartment,16
+DimShift,3
+DimPayFrequency,2
+DimDate,10777
+FactEmployeeSnapshot,290
+FactEmployeeDepartmentHistory,296
+FactEmployeePayHistory,316

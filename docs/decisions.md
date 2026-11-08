@@ -1,6 +1,6 @@
 # Project Decisions
 
-This document records the major architectural and implementation decisions made during the development of the Enterprise Business Intelligence Suite.
+This document records the major architectural and technical decisions made during the development of the Enterprise Business Intelligence Suite.
 
 ## 1. Source Database Selection
 
@@ -8,49 +8,56 @@ This document records the major architectural and implementation decisions made 
 
 ## 2. Separate Data Warehouse
 
-**Decision:** Create a dedicated SQL Server database named `Enterprise BI DW`.
-
-**Purpose:** Store custom-designed fact and dimension tables using raw data from AdventureWorks2025 while keeping the source database separate.
+**Decision:** Create a dedicated SQL Server database named `Enterprise BI DW` to store custom-designed fact and dimension tables using raw AdventureWorks2025 data.
 
 ## 3. Dimensional Modeling
 
-**Decision:** Follow Star Schema principles for designing the analytical data warehouse.
+**Decision:** Follow Star Schema principles.
 
-**Implementation:** Create fact and dimension tables for four business domains:
+**Implementation:** Develop fact and dimension tables for four business domains:
 
-* Sales
-* Finance
-* Human Resources (HR)
-* Supply Chain
+- Sales
+- Finance
+- Human Resources (HR)
+- Supply Chain
 
 ## 4. SQL Script Organization
 
-**Decision:** Maintain warehouse schema creation scripts in a dedicated SQL folder.
+**Decision:** Maintain warehouse schema creation scripts separately from ETL and data loading scripts.
 
-**Implementation:** Store the fact and dimension table creation scripts in `sql/02_warehouse/`.
+**Implementation:**
+- Warehouse schema scripts: `sql/02_warehouse/`
+- ETL, loading, and supporting validation SQL scripts: `03_SQL/`
 
 ## 5. Data Cleaning and Shaping
 
-**Decision:** Use Power Query to clean and shape the analytical data before proceeding with the reporting implementation.
+**Decision:** Use Power Query for cleaning and shaping the analytical data.
 
 **Implementation:** Complete data cleaning and shaping for the Sales, Finance, HR, and Supply Chain fact and dimension tables.
 
 ## 6. Star Schema Documentation
 
-**Decision:** Maintain separate star schema diagrams for each business domain, along with a combined Enterprise Overview.
+**Decision:** Maintain separate departmental star schema diagrams and a combined Enterprise Overview.
 
-**Implementation:** Five Power BI model layouts have been designed:
+**Implementation:** Five diagrams covering Sales, Finance, HR, Supply Chain, and the combined Enterprise Overview.
 
-1. Sales Star Schema
-2. Finance Star Schema
-3. HR Star Schema
-4. Supply Chain Star Schema
-5. Enterprise Overview – Combined analytical model
+**Location:** `docs/diagrams/star_schema/`
 
-**Documentation Location:** `docs/diagrams/star_schema/`
+## 7. ETL and Data Movement
 
-The Enterprise Overview presents the integrated fact and dimension tables and their relationships across the four business domains.
+**Decision:** Use Azure Data Factory to implement and orchestrate data movement between the source database and the analytical data warehouse.
+
+**Implementation:**
+- Configured Azure Data Factory.
+- Established a Self-Hosted Integration Runtime for local SQL Server connectivity.
+- Created source and destination linked services and datasets.
+- Developed four departmental ETL pipelines.
+- Used stored procedure activities for SQL-based processing and loading.
+- Created a master orchestration pipeline with sequential execution and dependencies.
+- Validated, published, and successfully tested all departmental and master pipelines.
+
+**Status:** Implemented and tested.
 
 ---
 
-*This document will be updated as further architectural and implementation decisions are made.*
+*This document will be updated as additional architectural and technical decisions are made.*

@@ -1,0 +1,9 @@
+﻿DimProduct,504
+DimLocation,14
+DimScrapReason,16
+DimTransactionType,3
+DimDate,10777
+FactInventorySnapshot,1069
+FactInventoryTransaction,113443
+FactWorkOrder,72591
+FactPurchaseOrders,8845

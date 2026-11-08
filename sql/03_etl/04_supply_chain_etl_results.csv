@@ -1,0 +1,5 @@
+﻿etl,usp_LoadFactInventorySnapshot
+etl,usp_LoadFactInventoryTransaction
+etl,usp_LoadFactWorkOrder
+etl,usp_LoadSupplyChainDimensions
+etl,usp_RunSupplyChainETL

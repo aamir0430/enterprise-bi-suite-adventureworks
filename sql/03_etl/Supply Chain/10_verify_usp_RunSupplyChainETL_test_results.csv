@@ -1,0 +1,6 @@
+﻿DimLocation,14
+DimScrapReason,16
+DimTransactionType,3
+FactInventorySnapshot,1069
+FactInventoryTransaction,113443
+FactWorkOrder,72591

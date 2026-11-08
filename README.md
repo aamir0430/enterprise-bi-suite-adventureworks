@@ -4,58 +4,60 @@ An end-to-end Enterprise Business Intelligence and Data Engineering project desi
 
 The project uses the raw `AdventureWorks2025` OLTP database as its source and a custom-built SQL Server data warehouse named `Enterprise BI DW` as its analytical database.
 
-The objective is to develop a unified reporting system for a multi-region company, incorporating data integration, dimensional modeling, ETL pipelines, interactive Power BI dashboards, and region-based Row-Level Security (RLS).
+The objective is to develop a unified reporting system for a multi-region company, incorporating dimensional modeling, automated ETL pipelines, interactive Power BI dashboards, business KPIs, and region-based Row-Level Security (RLS).
 
 ## Project Objectives
 
-* Develop a custom analytical data warehouse using raw operational data.
-* Design fact and dimension tables using Star Schema principles.
-* Integrate four business domains: Sales, Finance, HR, and Supply Chain.
-* Clean, transform, and validate data using Power Query and SQL.
-* Implement data movement and ETL pipelines using Azure Data Factory.
-* Develop interactive Power BI dashboards using DAX.
-* Implement regional Row-Level Security to control report access.
-* Establish a reliable and repeatable data processing workflow.
+- Develop a custom analytical data warehouse using raw operational data.
+- Design fact and dimension tables using Star Schema principles.
+- Integrate four business domains: Sales, Finance, HR, and Supply Chain.
+- Clean and transform data using Power Query.
+- Implement automated data movement and ETL pipelines using Azure Data Factory.
+- Develop DAX measures and business KPIs.
+- Build interactive Power BI dashboards.
+- Implement regional Row-Level Security.
+- Establish a reliable and repeatable data processing workflow.
 
 ## Technology Stack
 
-| Technology         | Purpose                                        |
-| ------------------ | ---------------------------------------------- |
-| SQL Server 2025    | Source database and analytical data warehouse  |
-| SSMS               | Database management and SQL development        |
-| SQL                | Data modeling, schema creation, and validation |
-| Azure Data Factory | Data movement and ETL orchestration            |
-| Power Query        | Data cleaning and transformation               |
-| Power BI Desktop   | Data modeling and visualization                |
-| DAX                | Business calculations and analytical KPIs      |
+| Technology | Purpose |
+|---|---|
+| SQL Server 2025 | Source database and analytical data warehouse |
+| SSMS | Database management and SQL development |
+| SQL | Data modeling, transformations, loading, and validation |
+| Azure Data Factory | ETL orchestration and data movement |
+| Self-Hosted Integration Runtime | Connectivity between Azure Data Factory and local SQL Server |
+| Power Query | Data cleaning and transformation |
+| Power BI Desktop | Data modeling and visualization |
+| DAX | Business calculations and analytical KPIs |
 
 ## Database Architecture
 
 The project uses two separate SQL Server databases.
 
-| Database             | Role                                   |
-| -------------------- | -------------------------------------- |
-| `AdventureWorks2025` | Raw OLTP source database               |
-| `Enterprise BI DW`   | Custom-built analytical data warehouse |
+| Database | Role |
+|---|---|
+| `AdventureWorks2025` | Raw OLTP source database |
+| `Enterprise BI DW` | Custom-built analytical data warehouse |
 
 ### Source Database: AdventureWorks2025
 
 The original AdventureWorks2025 OLTP database serves as the primary source of operational data.
 
-Relevant source tables are used to develop custom fact and dimension tables based on the analytical requirements of the project.
+Relevant source tables are used to develop custom fact and dimension tables according to the analytical requirements of the project.
 
 ### Target Database: Enterprise BI DW
 
 A separate database named `Enterprise BI DW` has been created in SQL Server.
 
-Raw operational data from AdventureWorks2025 has been used to develop custom fact and dimension tables for four business domains:
+Raw operational data from AdventureWorks2025 is used to develop fact and dimension tables for four business domains:
 
-* Sales
-* Finance
-* Human Resources (HR)
-* Supply Chain
+- Sales
+- Finance
+- Human Resources (HR)
+- Supply Chain
 
-This separation keeps the original operational database independent from the analytical data warehouse.
+This separation keeps the operational source database independent from the analytical data warehouse.
 
 ## Dimensional Modeling
 
@@ -63,131 +65,165 @@ The analytical data warehouse follows Star Schema principles.
 
 Fact tables store measurable business events, while dimension tables provide descriptive attributes for analytical reporting.
 
-Fact and dimension tables have been created for all four business domains.
+Fact and dimension tables have been developed for all four business domains.
 
 ### Sales
 
-The Sales model supports sales-related analysis and business performance reporting.
+Supports sales-related analysis and business performance reporting.
 
 ### Finance
 
-The Finance model supports financial and purchasing-related analysis.
+Supports financial and purchasing-related analysis.
 
-### Human Resources (HR)
+### Human Resources
 
-The HR model supports employee-related analysis, including employee snapshots, department history, and pay history.
+Supports employee-related analytics, including employee snapshots, department history, and pay history.
 
 ### Supply Chain
 
-The Supply Chain model supports inventory, inventory transactions, and work order analysis.
+Supports inventory, inventory transaction, and work order analysis.
 
-It includes dimensions such as:
+The existing purchase order fact model is also incorporated where appropriate.
 
-* `DimLocation`
-* `DimScrapReason`
-* `DimTransactionType`
+## Star Schema Design
 
-Its fact tables include:
+Five different star schema layouts have been designed in Power BI Model View.
 
-* `FactInventorySnapshot`
-* `FactInventoryTransaction`
-* `FactWorkOrder`
+| Diagram | Description |
+|---|---|
+| Sales Star Schema | Sales fact and dimension relationships |
+| Finance Star Schema | Finance fact and dimension relationships |
+| HR Star Schema | HR fact and dimension relationships |
+| Supply Chain Star Schema | Supply Chain fact and dimension relationships |
+| Enterprise Overview | Combined view of fact and dimension tables across all four business domains |
 
-The existing `FactPurchaseOrders` table is also reused where appropriate.
-
-## Star Schema Diagrams
-
-Five different star schema layouts have been designed in Power BI Model View to document the analytical data model.
-
-| Diagram                  | Description                                                                 |
-| ------------------------ | --------------------------------------------------------------------------- |
-| Sales Star Schema        | Sales fact and dimension relationships                                      |
-| Finance Star Schema      | Finance fact and dimension relationships                                    |
-| HR Star Schema           | HR fact and dimension relationships                                         |
-| Supply Chain Star Schema | Supply Chain fact and dimension relationships                               |
-| Enterprise Overview      | Combined view of fact and dimension tables across all four business domains |
-
-The Enterprise Overview provides an integrated view of the analytical model and its relationships.
-
-**Diagram location:** `docs/diagrams/star_schema/`
+**Location:** `docs/diagrams/star_schema/`
 
 ## Data Cleaning and Shaping
 
-Data cleaning and shaping have been completed in Power Query for the fact and dimension tables across all four business domains:
+Data cleaning and shaping have been completed in Power Query for fact and dimension tables across all four business domains.
 
-* Sales
-* Finance
-* HR
-* Supply Chain
+Activities included:
 
-The data preparation process included:
+- Data type verification and correction.
+- Null and missing value analysis.
+- Duplicate and distinct value checks.
+- Column quality examination.
+- Removal of unnecessary columns where appropriate.
+- Investigation of inconsistent and invalid values.
+- Application of required transformations.
 
-* Verifying and assigning appropriate data types.
-* Examining missing and null values.
-* Checking duplicates and distinct values.
-* Reviewing column quality.
-* Removing unnecessary columns where appropriate.
-* Investigating inconsistent or invalid values.
-* Applying the required transformations.
-* Reviewing the resulting tables before modeling.
+## Phase 3: Data Movement and ETL Using Azure Data Factory
 
-Data cleaning decisions were made based on the structure and requirements of the individual tables.
+**Status: COMPLETED**
+
+Azure Data Factory has been configured and implemented to orchestrate data movement between the AdventureWorks2025 source database and the `Enterprise BI DW` analytical database.
+
+### Azure Data Factory Configuration
+
+The following components have been configured:
+
+- Azure Data Factory instance.
+- Self-Hosted Integration Runtime for connectivity to the local SQL Server environment.
+- Source linked service.
+- Destination linked service.
+- Source datasets.
+- Destination datasets.
+
+### Departmental ETL Pipelines
+
+Four separate departmental ETL pipelines have been developed:
+
+1. Sales ETL Pipeline
+2. Finance ETL Pipeline
+3. HR ETL Pipeline
+4. Supply Chain ETL Pipeline
+
+Stored procedure activities have been configured within the pipelines to execute the corresponding SQL-based data processing and loading operations.
+
+### Master Orchestration Pipeline
+
+A master orchestration pipeline has been developed to coordinate the execution of all four departmental pipelines.
+
+Implemented capabilities include:
+
+- Integration of all four departmental pipelines.
+- Sequential execution.
+- Pipeline dependencies.
+- Execution order management.
+
+### Publishing and Testing
+
+- Validated all pipelines.
+- Published the configured pipelines.
+- Successfully executed and tested all four departmental pipelines individually.
+- Successfully executed and tested the master orchestration pipeline.
+
+**Result:** The mandatory Azure Data Factory implementation tasks for Phase 3 have been completed successfully.
+
+## SQL Development and Validation
+
+SQL scripts have been developed to support warehouse creation, ETL processing, data loading, and validation.
+
+The SQL development includes:
+
+- Fact and dimension table creation.
+- Dimension loading queries.
+- Fact loading queries.
+- ETL transformation queries.
+- Stored procedure implementation.
+- Dimension ETL validation.
+- Dimension table verification.
+- Fact and dimension loading validation.
+
+The SQL scripts supporting ETL and loading activities are maintained in the `03_SQL` directory.
 
 ## Technical Challenges and Resolutions
 
-Several technical issues were encountered during database development and Power BI modeling.
+### HR Date Dimension Mismatch
 
-### 1. Date Range Mismatch in HR Fact Tables
+The dates in `FactEmployeeDepartmentHistory` and `FactEmployeePayHistory` initially did not match the available date range in `DimDate`.
 
-The dates in `FactEmployeeDepartmentHistory` and `FactEmployeePayHistory` were outside the available date range in `DimDate`.
+**Resolution:** Extended and updated the date dimension and rewrote the SQL queries for both HR fact tables.
 
-**Resolution:**
+### Power BI Model Synchronization
 
-* Extended and updated the `DimDate` table.
-* Rewrote the SQL queries for both HR fact tables.
-* Verified the updated date relationships.
+Changes made to `DimDate` in Power Query were not initially reflected correctly in Power BI Desktop. The related HR fact tables also failed to reflect the expected updates.
 
-### 2. Power Query and Power BI Synchronization
+**Resolution:** Resolved the refresh and model synchronization issues and verified the updated tables and relationships.
 
-Changes made to `DimDate` in Power Query were not initially reflected correctly in Power BI Desktop. The two related HR fact tables also failed to reflect the expected updates.
+### SQL Server Collation Conflict
 
-**Resolution:** Addressed the model synchronization and refresh issues and verified the updated tables and relationships.
+A collation conflict occurred while developing `FactInventoryTransaction`.
 
-### 3. SQL Server Collation Conflict
+**Resolution:** Applied `COLLATE DATABASE_DEFAULT` to the relevant SQL operation.
 
-A collation conflict occurred while creating `FactInventoryTransaction`.
+## Next Phase: DAX Measures and Analytical Calculations
 
-**Resolution:** Applied `COLLATE DATABASE_DEFAULT` to the relevant transaction type join, resolving the issue.
-
-## ETL and Data Movement
-
-Azure Data Factory will be used to implement and orchestrate the data movement process between the source and target databases.
+The next development phase focuses on creating DAX measures in Power BI.
 
 Planned activities include:
 
-1. Configure source and destination connections.
-2. Extract relevant data from AdventureWorks2025.
-3. Apply required transformations.
-4. Load data into the appropriate warehouse tables.
-5. Establish pipeline dependencies and execution order.
-6. Configure error handling and monitoring.
-7. Validate loaded data against the source.
+- Total Sales and Revenue measures.
+- Year-to-Date (YTD) calculations.
+- Year-over-Year (YoY) growth.
+- Profit and margin percentage calculations.
+- Rolling averages.
+- Department-specific analytical KPIs.
+- Validation of DAX calculations against SQL results.
 
 ## Power BI Reporting and Security
 
-Power BI will serve as the primary analytical and visualization layer.
+Following DAX development, Power BI will be used to build the final analytical reporting solution.
 
-Planned reporting capabilities include:
+Planned capabilities include:
 
-* Sales performance dashboards.
-* Financial and purchasing analysis.
-* Human Resources analytics.
-* Supply Chain and inventory reporting.
-* DAX-based business KPIs.
-* Interactive filtering and drill-down analysis.
-* Regional Row-Level Security (RLS).
-
-The existing star schema layouts provide the foundation for developing the reporting model.
+- Sales performance dashboards.
+- Financial and purchasing analysis.
+- Human Resources analytics.
+- Supply Chain and inventory reporting.
+- Interactive filtering and drill-down analysis.
+- Regional Row-Level Security.
 
 ## Repository Structure
 
@@ -201,22 +237,19 @@ Enterprise-BI-Project/
 │   ├── decisions.md
 │   ├── journal.md
 │   ├── data_dictionary.md
-│   │
 │   ├── diagrams/
 │   │   └── star_schema/
-│   │       ├── sales_star_schema.png
-│   │       ├── finance_star_schema.png
-│   │       ├── hr_star_schema.png
-│   │       ├── supply_chain_star_schema.png
-│   │       └── enterprise_overview.png
-│   │
 │   └── validation_results/
 │
 ├── sql/
 │   ├── 00_profiling/
 │   ├── 001_restore/
 │   ├── 02_warehouse/
-│   └── 03_ETL/
+│   └── 03_SQL/
+│       ├── dimension_validation/
+│       ├── dimension_load/
+│       ├── fact_load/
+│       └── etl_validation/
 │
 ├── azure-data-factory/
 │
@@ -225,36 +258,32 @@ Enterprise-BI-Project/
 └── tests/
 ```
 
-The repository structure separates database development, documentation, data preparation, ETL, and reporting activities.
+The repository structure separates database development, documentation, ETL implementation, validation, and reporting assets.
 
 ## Project Progress
 
-| Phase | Description                                                    | Status    |
-| ----- | -------------------------------------------------------------- | --------- |
-| 0     | Project setup and repository organization                      | Completed |
-| 1     | Source database selection and setup                            | Completed |
-| 2     | Creation of Enterprise BI DW                                   | Completed |
-| 3     | Sales, Finance, HR, and Supply Chain fact and dimension tables | Completed |
-| 4     | Data cleaning and shaping in Power Query                       | Completed |
-| 5     | Five star schema layouts in Power BI                           | Completed |
-| 6     | ETL development using Azure Data Factory                       | Upcoming  |
-| 7     | Data movement and warehouse loading                            | Upcoming  |
-| 8     | DAX measures and KPI development                               | Upcoming  |
-| 9     | Power BI dashboards and reporting                              | Upcoming  |
-| 10    | Regional Row-Level Security implementation                     | Upcoming  |
-| 11    | End-to-end testing and documentation                           | Upcoming  |
-
-*Completed status reflects the implementation work described above. Further validation and integration testing will continue as the project progresses.*
+| Phase | Description | Status |
+|---|---|---|
+| 0 | Project setup and repository organization | Completed |
+| 1 | Source database selection and setup | Completed |
+| 2 | Data warehouse and dimensional modeling | Completed |
+| 3 | Data cleaning, shaping, and star schema design | Completed |
+| 4 | Azure Data Factory configuration and ETL implementation | Completed |
+| 5 | DAX measures and analytical calculations | Next |
+| 6 | Power BI dashboards and reporting | Upcoming |
+| 7 | Regional Row-Level Security | Upcoming |
+| 8 | End-to-end testing and final documentation | Upcoming |
 
 ## Design Principles
 
-* **Source-first development:** Build the analytical model using raw operational data.
-* **Separation of concerns:** Keep the OLTP source and analytical warehouse separate.
-* **Dimensional modeling:** Organize analytical data using fact and dimension tables.
-* **Data integrity:** Maintain appropriate keys, relationships, and validation rules.
-* **Repeatability:** Develop reproducible data processing workflows.
-* **Security:** Implement regional access restrictions through RLS.
-* **Documentation:** Maintain records of architectural decisions, schema diagrams, and implementation progress.
+- **Source-first development:** Build the analytical model using raw operational data.
+- **Separation of concerns:** Keep the OLTP source and analytical warehouse separate.
+- **Dimensional modeling:** Organize analytical data using fact and dimension tables.
+- **Data integrity:** Maintain appropriate keys, relationships, and validation rules.
+- **Automation:** Use Azure Data Factory to orchestrate repeatable ETL workflows.
+- **Reliability:** Validate departmental pipelines and master orchestration.
+- **Security:** Implement regional access restrictions through RLS.
+- **Documentation:** Maintain architectural decisions, implementation records, and validation evidence.
 
 ## Previous Implementation Archive
 
@@ -262,10 +291,8 @@ An earlier implementation was based on the prebuilt AdventureWorksDW2025 data wa
 
 The approach was subsequently changed to use the raw AdventureWorks2025 OLTP database and develop a custom analytical data warehouse.
 
-Previous documentation and relevant work are retained separately for historical reference and are not the specification for the current implementation.
+Previous documentation and relevant work are retained separately for historical reference.
 
 ## Data Attribution
 
-AdventureWorks sample databases are provided by Microsoft for learning and development purposes.
-
-Refer to Microsoft's official sample database documentation for source information and applicable terms.
+AdventureWorks sample databases are provided by Microsoft for learning and development purposes. Refer to Microsoft's official sample database documentation for source information and applicable terms.

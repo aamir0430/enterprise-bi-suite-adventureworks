@@ -1,0 +1,4 @@
+﻿etl,usp_LoadFactSales,2026-11-07 16:15:49.553,2026-11-07 16:30:07.237
+etl,usp_LoadFactSalesOrderHeader,2026-11-07 16:15:49.513,2026-11-07 16:30:07.227
+etl,usp_LoadSalesDimensions,2026-11-07 16:30:07.207,2026-11-07 16:30:07.207
+etl,usp_RunSalesETL,2026-11-07 16:15:49.583,2026-11-07 16:28:29.297
